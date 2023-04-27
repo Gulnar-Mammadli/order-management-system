@@ -36,4 +36,11 @@ public class OrderService {
         Optional<List<Order>> list = orderRepository.findAllByDate(date);
         return list.orElse(null);
     }
+
+    public List<Order> findOrdersByProduct(Long productId) {
+
+        Optional<List<Order>> orderList = orderRepository.findOrdersByProductId(productId);
+        return orderList.orElse(null);
+    }
+
 }
