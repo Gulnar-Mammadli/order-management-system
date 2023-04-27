@@ -17,5 +17,5 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
     Optional<List<Order>> findAllByDate(LocalDate date);
 
     @Query("SELECT o FROM Order o JOIN o.orderLines ol WHERE ol.product.id = :productId")
-    List<Order> findOrdersByProductId(@Param("productId") Long productId);
+    Optional<List<Order>> findOrdersByProductId(@Param("productId") Long productId);
 }
