@@ -2,7 +2,6 @@ package com.mammadli.order_management_system.controller;
 
 import com.mammadli.order_management_system.dto.OrderDto;
 import com.mammadli.order_management_system.model.Order;
-import com.mammadli.order_management_system.model.Product;
 import com.mammadli.order_management_system.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
