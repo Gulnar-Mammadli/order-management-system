@@ -33,4 +33,13 @@ public class OrderLineService {
         }
         return null;
     }
+
+    public OrderLine updateProductQuantity(int quantity,Long orderLineId) {
+        Optional<OrderLine> orderLine = orderLineRepository.findById(orderLineId);
+        if(orderLine.isPresent()){
+            orderLine.get().setQuantity(quantity);
+            return orderLine.get();
+        }
+        return null;
+    }
 }
