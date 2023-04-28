@@ -7,6 +7,7 @@ import com.mammadli.order_management_system.model.Order;
 import com.mammadli.order_management_system.repository.CustomerRepository;
 import com.mammadli.order_management_system.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -41,6 +42,15 @@ public class OrderService {
 
         Optional<List<Order>> orderList = orderRepository.findOrdersByProductId(productId);
         return orderList.orElse(null);
+    }
+
+
+    public List<Order> findOrdersByCustomer(Long customerId) {
+        return orderRepository.findByCustomerId(customerId);
+    }
+
+    public List<Order> findOrdersByCustomer(Specification<Order> spec) {
+        return orderRepository.findAll(spec);
     }
 
 }
