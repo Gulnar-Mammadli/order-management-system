@@ -18,7 +18,7 @@ public class ProductService {
 
     public Product createProduct(ProductDto productDto) {
         Optional<Product> product = productRepository.findBySkuCode(productDto.getSkuCode());
-        if (!product.isPresent()) {
+        if (product.isEmpty()) {
             return productRepository.save(ProductMapper.INSTANCE.mapToProduct(productDto));
         }
         return null;
