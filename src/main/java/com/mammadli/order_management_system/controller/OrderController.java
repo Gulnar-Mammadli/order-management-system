@@ -4,7 +4,6 @@ import com.mammadli.order_management_system.dto.OrderDto;
 import com.mammadli.order_management_system.model.Order;
 import com.mammadli.order_management_system.service.OrderService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -27,17 +26,30 @@ public class OrderController {
         return orderService.findOrdersByDate(date);
     }
 
-    @GetMapping("/productId/{productId}")
-    List<Order> getOrdersByProduct(@PathVariable Long productId) {
-        return orderService.findOrdersByProduct(productId);
+    @GetMapping("/product-jpql")
+    List<Order> fetchOrdersByProduct(@RequestParam(required = false) String skuCode,
+                                     @RequestParam(required = false) String name) {
+        return orderService.fetchOrdersByProduct(skuCode, name);
     }
 
-    @GetMapping("/customerId/{customerId}")
-    List<Order> findOrdersByCustomer(@PathVariable Long customerId) {
-        return orderService.findOrdersByCustomer(customerId);
+    @GetMapping("/product-criteria")
+    List<Order> getOrdersByProduct(
+            @RequestParam(name = "skuCode", required = false) String skuCode,
+            @RequestParam(name = "name", required = false) String name) {
+        return orderService.findOrdersByProduct(skuCode, name);
     }
 
-    @GetMapping("/orders")
+    @GetMapping("/customer-jpql")
+    List<Order> fetchOrdersByCustomer(
+            @RequestParam(name = "customerId", required = false) Long customerId,
+            @RequestParam(name = "registrationCode", required = false) String registrationCode,
+            @RequestParam(name = "fullName", required = false) String fullName,
+            @RequestParam(name = "email", required = false) String email
+    ) {
+        return orderService.fetchOrdersByCustomer(customerId,registrationCode,fullName,email);
+    }
+
+    @GetMapping("/customer-criteria")
     public List<Order> getOrdersByCustomer(
             @RequestParam(name = "customerId", required = false) Long customerId,
             @RequestParam(name = "registrationCode", required = false) String registrationCode,

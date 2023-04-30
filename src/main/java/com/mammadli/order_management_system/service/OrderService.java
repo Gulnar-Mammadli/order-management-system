@@ -4,10 +4,13 @@ import com.mammadli.order_management_system.dto.OrderDto;
 import com.mammadli.order_management_system.mapper.OrderMapper;
 import com.mammadli.order_management_system.model.Customer;
 import com.mammadli.order_management_system.model.Order;
+import com.mammadli.order_management_system.model.OrderLine;
+import com.mammadli.order_management_system.model.Product;
 import com.mammadli.order_management_system.repository.CustomerRepository;
 import com.mammadli.order_management_system.repository.OrderRepository;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -38,38 +41,39 @@ public class OrderService {
         return list.orElse(null);
     }
 
-    public List<Order> findOrdersByProduct(Long productId) {
-
-        Optional<List<Order>> orderList = orderRepository.findOrdersByProductId(productId);
-        return orderList.orElse(null);
+    public List<Order> fetchOrdersByProduct(String skuCode, String name) {
+        Optional<List<Order>> result = orderRepository.findOrdersByProduct(skuCode, name);
+        return result.orElse(null);
     }
 
+    public List<Order> findOrdersByProduct(String skuCode, String name) {
 
-    public List<Order> findOrdersByCustomer(Long customerId) {
-        return orderRepository.findByCustomerId(customerId);
+        return orderRepository.findAll((root, query, criteriaBuilder) -> {
+                    Join<Order, OrderLine> orderLineJoin = root.join("orderLines");
+                    Join<OrderLine, Product> productJoin = orderLineJoin.join("product");
+                    Predicate predicateSkuCode = criteriaBuilder.equal(productJoin.get("skuCode"), skuCode);
+                    Predicate predicateName = criteriaBuilder.equal(productJoin.get("name"), name);
+                    return criteriaBuilder.or(predicateSkuCode, predicateName);
+                }
+        );
     }
-
 
     public List<Order> findOrdersByCustomer(Long customerId, String registrationCode, String fullName, String email) {
-        Specification<Order> spec = null;
-        if (customerId != null) {
-            spec = Specification.where((root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("customer").get("id"), customerId));
-        }
-        if (registrationCode != null) {
-            spec = Specification.where((root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("customer").get("registrationCode"), registrationCode));
-        }
 
-        if (fullName != null) {
-            spec = Specification.where((root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("customer").get("fullName"), fullName));
-        }
-        if (email != null) {
-            spec = Specification.where((root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("customer").get("email"), email));
-        }
-        return orderRepository.findAll(spec);
+        return orderRepository.findAll((root, query, criteriaBuilder) -> {
+                    Predicate predicateCustomerId = criteriaBuilder.equal(root.get("customer").get("id"), customerId);
+                    Predicate predicateRegistrationCode = criteriaBuilder.equal(root.get("customer").get("registrationCode"), registrationCode);
+                    Predicate predicateFullName = criteriaBuilder.equal(root.get("customer").get("fullName"), fullName);
+                    Predicate predicateEmail = criteriaBuilder.equal(root.get("customer").get("email"), email);
+                    return criteriaBuilder.or(predicateCustomerId, predicateRegistrationCode, predicateFullName, predicateEmail);
+                }
+        );
+    }
+
+
+    public List<Order> fetchOrdersByCustomer(Long customerId, String registrationCode, String fullName, String email) {
+        Optional<List<Order>> result = orderRepository.findByCustomer(customerId, registrationCode, fullName, email);
+        return result.orElse(null);
     }
 
 
