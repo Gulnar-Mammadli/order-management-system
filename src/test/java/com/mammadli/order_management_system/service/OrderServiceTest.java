@@ -13,9 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,7 +33,9 @@ class OrderServiceTest {
     private OrderService orderService;
 
 
-    private static final Long PRODUCT_ID = 1L;
+    private static final String PRODUCT_NAME = "Phone";
+    private static final String PRODUCT_SKU_CODE = "123";
+
 
     Customer customer = Customer.builder()
             .id(1L)
@@ -126,64 +126,108 @@ class OrderServiceTest {
 
     }
 
-    @Test
-    void findOrdersByProductSuccess() {
 
+    @Test
+    public void testFetchOrdersByProductSuccess() {
 //        arrange
-        when(orderRepository.findOrdersByProductId(any())).thenReturn(Optional.of(orderList));
+        when(orderRepository.findOrdersByProduct(any(),any())).thenReturn(Optional.of(orderList));
 
 //        act
-        List<Order> result = orderService.findOrdersByProduct(PRODUCT_ID);
+        List<Order> result = orderService.fetchOrdersByProduct(PRODUCT_SKU_CODE, PRODUCT_NAME);
 
 //        assert
         assertNotNull(result);
         assertEquals(orderList, result);
-        verify(orderRepository).findOrdersByProductId(any());
+        verify(orderRepository).findOrdersByProduct(any(),any());
     }
 
-    @Test
-    void findOrdersByProductNotFound() {
 
+    @Test
+    public void testFetchOrdersNotFound() {
 //        arrange
-        when(orderRepository.findOrdersByProductId(any())).thenReturn(Optional.empty());
+        when(orderRepository.findOrdersByProduct(any(),any())).thenReturn(Optional.empty());
 
 //        act
-        List<Order> result = orderService.findOrdersByProduct(PRODUCT_ID);
+        List<Order> result = orderService.fetchOrdersByProduct(PRODUCT_SKU_CODE, PRODUCT_NAME);
 
 //        assert
         assertNull(result);
-        verify(orderRepository).findOrdersByProductId(any());
+        verify(orderRepository).findOrdersByProduct(any(),any());
     }
 
-    @Test
-    void findOrdersByCustomerSuccess() {
-        //        arrange
-        when(orderRepository.findByCustomerId(any())).thenReturn(orderList);
 
-//        act
-        List<Order> result = orderService.findOrdersByCustomer(customer.getId());
+
+
+    @Test
+    public void findOrdersByProductSuccess() {
+//        arrange
+        when(orderRepository.findAll(any(Specification.class))).thenReturn(orderList);
+
+        //        act
+        List<Order> result = orderService.findOrdersByProduct(PRODUCT_SKU_CODE, PRODUCT_NAME);
+        assertEquals(orderList, result);
 
 //        assert
         assertNotNull(result);
         assertEquals(orderList, result);
-        verify(orderRepository).findByCustomerId(any());
+        verify(orderRepository).findAll(any(Specification.class));
+    }
+
+
+    @Test
+    public void testFindOrdersByCustomerSuccess() {
+//      arrange
+        when(orderRepository.findAll(any(Specification.class))).thenReturn(orderList);
+
+//        act
+        List<Order> result = orderService.findOrdersByCustomer(customer.getId(), customer.getRegistrationCode(), customer.getFullName(), customer.getEmail());
+
+//        assert
+        assertNotNull(result);
+        assertEquals(orderList, result);
+        verify(orderRepository).findAll(any(Specification.class));
+
     }
 
     @Test
-    void testFindOrdersByCustomer() {
+    public void testFindOrdersByCustomerNotFound() {
+//      arrange
+        when(orderRepository.findAll(any(Specification.class))).thenReturn(null);
 
-        // Arrange
-        Specification<Order> spec = mock(Specification.class);
-        when(orderRepository.findAll(spec)).thenReturn(orderList);
+//        act
+        List<Order> result = orderService.findOrdersByCustomer(customer.getId(), customer.getRegistrationCode(), customer.getFullName(), customer.getEmail());
 
-
-        // Act
-        List<Order> result = orderService.findOrdersByCustomer(spec);
-
-        // Assert
-        assertNotNull(result);
-        assertEquals(orderList, result);
-        verify(orderRepository).findAll(spec);
+//        assert
+        assertNull(result);
+        verify(orderRepository).findAll(any(Specification.class));
 
     }
+
+    @Test
+    public void testFetchOrdersByCustomerSuccess() {
+//        arrange
+        when(orderRepository.findByCustomer(any(),any(),any(),any())).thenReturn(Optional.of(orderList));
+
+//        act
+        List<Order> result = orderService.fetchOrdersByCustomer(customer.getId(), customer.getRegistrationCode(), customer.getFullName(), customer.getEmail());
+
+//        assert
+        assertNotNull(result);
+        assertEquals(orderList, result);
+        verify(orderRepository).findByCustomer(any(),any(),any(),any());
+    }
+
+    @Test
+    public void testFetchOrdersByCustomerNotFound() {
+//        arrange
+        when(orderRepository.findByCustomer(any(),any(),any(),any())).thenReturn(Optional.empty());
+
+//        act
+        List<Order> result = orderService.fetchOrdersByCustomer(customer.getId(), customer.getRegistrationCode(), customer.getFullName(), customer.getEmail());
+
+//        assert
+        assertNull(result);
+        verify(orderRepository).findByCustomer(any(),any(),any(),any());
+    }
+
 }
