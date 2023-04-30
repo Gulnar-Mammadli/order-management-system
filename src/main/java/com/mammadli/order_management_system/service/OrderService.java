@@ -49,8 +49,28 @@ public class OrderService {
         return orderRepository.findByCustomerId(customerId);
     }
 
-    public List<Order> findOrdersByCustomer(Specification<Order> spec) {
+
+    public List<Order> findOrdersByCustomer(Long customerId, String registrationCode, String fullName, String email) {
+        Specification<Order> spec = null;
+        if (customerId != null) {
+            spec = Specification.where((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("customer").get("id"), customerId));
+        }
+        if (registrationCode != null) {
+            spec = Specification.where((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("customer").get("registrationCode"), registrationCode));
+        }
+
+        if (fullName != null) {
+            spec = Specification.where((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("customer").get("fullName"), fullName));
+        }
+        if (email != null) {
+            spec = Specification.where((root, query, criteriaBuilder) ->
+                    criteriaBuilder.equal(root.get("customer").get("email"), email));
+        }
         return orderRepository.findAll(spec);
     }
+
 
 }

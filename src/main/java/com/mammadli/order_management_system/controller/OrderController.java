@@ -18,36 +18,32 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    Order createOrder(@RequestBody OrderDto orderDto){
+    Order createOrder(@RequestBody OrderDto orderDto) {
         return orderService.createOrder(orderDto);
     }
 
     @GetMapping("/date/{date}")
-    List<Order> getOrdersByDate(@PathVariable LocalDate date){
+    List<Order> getOrdersByDate(@PathVariable LocalDate date) {
         return orderService.findOrdersByDate(date);
     }
 
     @GetMapping("/productId/{productId}")
-    List<Order> getOrdersByProduct(@PathVariable Long productId){
+    List<Order> getOrdersByProduct(@PathVariable Long productId) {
         return orderService.findOrdersByProduct(productId);
     }
 
     @GetMapping("/customerId/{customerId}")
-    List<Order> findOrdersByCustomer(@PathVariable Long customerId){
+    List<Order> findOrdersByCustomer(@PathVariable Long customerId) {
         return orderService.findOrdersByCustomer(customerId);
     }
 
     @GetMapping("/orders")
     public List<Order> getOrdersByCustomer(
-            @RequestParam(name = "customerId", required = false) Long customerId) {
-
-        Specification<Order> spec = null;
-
-        if (customerId != null) {
-            spec = Specification.where((root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("customer").get("id"), customerId));
-        }
-
-        return orderService.findOrdersByCustomer(spec);
+            @RequestParam(name = "customerId", required = false) Long customerId,
+            @RequestParam(name = "registrationCode", required = false) String registrationCode,
+            @RequestParam(name = "fullName", required = false) String fullName,
+            @RequestParam(name = "email", required = false) String email
+    ) {
+        return orderService.findOrdersByCustomer(customerId, registrationCode, fullName, email);
     }
 }
